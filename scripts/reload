@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+
+set -e
+
 script_name="$0"
 script_dir="$(realpath "$(dirname "$0")")"
 
