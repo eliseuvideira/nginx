@@ -13,7 +13,7 @@ certbot_dir="$root_dir/certbot"
 usage() {
   cat <<__EOF__
 Usage: 
-  $script_name DOMAIN EMAIL PROXY STAGING
+  $script_name DOMAIN EMAIL PROXY
 
 Where:
   DOMAIN   domain to create certificate       subdomain.domain.com
@@ -21,7 +21,7 @@ Where:
   PROXY    url to proxy                       http://localhost:8000
 
 Example:
-  $script_name subdomain.domain.com example@email.com http://localhost:8000 0
+  $script_name subdomain.domain.com example@email.com http://localhost:8000
 __EOF__
 }
 
