@@ -1,0 +1,4 @@
+certbot/*
+nginx/domains/*
+!certbot/.gitkeep
+!nginx/domains/.gitkeep
