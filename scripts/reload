@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+script_name="$0"
+script_dir="$(realpath "$(dirname "$0")")"
+
+root_dir="$(realpath "$script_dir/..")"
+
+compose_filename="$root_dir/docker-compose.yml"
+
+docker-compose -f "$compose_filename" exec nginx nginx -t
+
+if [ "$?" != "0" ]; then
+  exit 1
+fi
+
+docker-compose -f "$compose_filename" exec nginx nginx -s reload
