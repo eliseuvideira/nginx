@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+script_name="$0"
+script_dir="$(realpath "$(dirname "$0")")"
+docker_compose_dir="$(realpath "$script_dir/..")"
+docker_compose_filepath="$docker_compose_dir/docker-compose.yml"
+
+usage() {
+  echo "$script_name: usage: $script_name [-v | --verbose] [-h | --help]"
+}
+
+exit_with_error() {
+  echo "$script_name: error: $1"
+  usage
+  exit 1
+}
+
+while :; do
+  case "${1-}" in
+  -h | --help) usage ;;
+  -v | --verbose) set -x ;;
+  -*) exit_with_error "unknown option $1" ;;
+  *) break ;;
+  esac
+  shift
+done
+
+if ! docker-compose -f "$docker_compose_filepath" exec nginx nginx -t; then
+  exit 1
+fi
+
+exit 0
