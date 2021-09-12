@@ -6,7 +6,6 @@ services:
     network_mode: host
     restart: always
     volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf:ro
       - ./nginx:/etc/nginx/conf.d
       - ./certbot/conf:/etc/letsencrypt
       - ./certbot/www:/var/www/certbot
