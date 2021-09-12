@@ -33,7 +33,7 @@ live_folder="$certbot_dir/conf/live/$domain"
 archive_folder="$certbot_dir/conf/archive/$domain"
 
 remove() {
-  sudo rm -rIv --preserve-root "$1"
+  sudo rm -rfIv --preserve-root "$1"
 }
 
 nginx_reload() {
