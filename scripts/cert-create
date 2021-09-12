@@ -1,0 +1,80 @@
+#!/usr/bin/env bash
+
+script_name="$(basename "$0")"
+script_dir="$(realpath "$(dirname "$0")")"
+
+usage() {
+  echo "$script_name: usage: $script_name DOMAIN EMAIL PROXY" >&2
+}
+
+exit_with_error() {
+  echo "$script_name: error: $1" >&2
+  usage
+  exit 1
+}
+
+if [ "$#" != "3" ]; then
+  exit_with_error "invalid number of arguments $#"
+fi
+
+domain="$1"
+email="$2"
+proxy="$3"
+
+if ! "$script_dir/validate-domain" "$domain"; then
+  exit_with_error "not a valid domain '$domain'"
+fi
+
+if ! "$script_dir/validate-email" "$email"; then
+  exit_with_error "not a valid email '$email'"
+fi
+
+if ! "$script_dir/validate-http-url" "$proxy"; then
+  exit_with_error "not a valid proxy '$proxy'"
+fi
+
+root_dir="$(realpath "$script_dir/..")"
+nginx_dir="$root_dir/nginx"
+nginx_domains_dir="$root_dir/nginx/domains"
+nginx_domain_filename="$nginx_domains_dir/$domain.conf"
+certbot_dir="$root_dir/certbot"
+
+nginx_reload() {
+  "$script_dir/nginx-reload"
+}
+
+create_dir() {
+  sudo mkdir -p "$1"
+}
+
+create_nginx_config_plain() {
+  "$script_dir/nginx-config-plain" "$1" | sudo tee "$2"
+}
+
+certbot_create_cert() {
+  "$script_dir/certbot-create-cert" "$1" "$2"
+}
+
+create_nginx_config_proxy() {
+  "$script_dir/nginx-config-proxy" "$1" "$2" | sudo tee "$3"
+}
+
+change_owner() {
+  sudo chown "$USER:$USER" -R "$1"
+}
+
+create_dir "$nginx_domains_dir"
+
+create_nginx_config_plain "$domain" "$nginx_domain_filename"
+
+nginx_reload
+
+certbot_create_cert "$domain" "$email"
+
+create_nginx_config_proxy "$domain" "$proxy" "$nginx_domain_filename"
+
+nginx_reload
+
+change_owner "$nginx_dir"
+
+change_owner "$certbot_dir"

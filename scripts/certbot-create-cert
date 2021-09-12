@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+
+script_name="$(basename "$0")"
+script_dir="$(realpath "$(dirname "$0")")"
+
+usage() {
+  echo "$script_name: usage: $script_name DOMAIN EMAIL" >&2
+}
+
+exit_with_error() {
+  echo "$script_name: error: $1" >&2
+  usage
+  exit 1
+}
+
+if [ "$#" != "2" ]; then
+  exit_with_error "invalid number of arguments $#"
+fi
+
+domain="$1"
+email="$2"
+docker_compose_dir="$(realpath "$script_dir/..")"
+docker_compose_filepath="$docker_compose_dir/docker-compose.yml"
+
+if ! docker-compose -f "$docker_compose_filepath" \
+  exec certbot certbot certonly \
+  --webroot \
+  -w /var/www/certbot \
+  -d "$domain" \
+  --email "$email" \
+  --rsa-key-size 4096 \
+  --agree-tos \
+  --non-interactive; then
+  exit_with_error "failed to create https certificate to $domain"
+fi

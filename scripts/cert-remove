@@ -1,0 +1,59 @@
+#!/usr/bin/env bash
+
+script_name="$(basename "$0")"
+script_dir="$(realpath "$(dirname "$0")")"
+
+usage() {
+  echo "$script_name: usage: $script_name DOMAIN" >&2
+}
+
+exit_with_error() {
+  echo "$script_name: error: $1" >&2
+  usage
+  exit 1
+}
+
+if [ "$#" != "1" ]; then
+  exit_with_error "invalid number of arguments $#"
+fi
+
+domain="$1"
+
+if ! "$script_dir/validate-domain" "$domain"; then
+  exit_with_error "not a valid domain '$domain'"
+fi
+
+root_dir="$(realpath "$script_dir/..")"
+nginx_dir="$root_dir/nginx"
+nginx_domains_dir="$root_dir/nginx/domains"
+nginx_domain_filename="$nginx_domains_dir/$domain.conf"
+certbot_dir="$root_dir/certbot"
+renewal_filename="$certbot_dir/conf/renewal/$domain.conf"
+live_folder="$certbot_dir/conf/live/$domain"
+archive_folder="$certbot_dir/conf/archive/$domain"
+
+remove() {
+  sudo rm -rIv --preserve-root "$1"
+}
+
+nginx_reload() {
+  "$script_dir/nginx-reload"
+}
+
+remove "$nginx_domain_filename"
+
+remove "$renewal_filename"
+
+remove "$live_folder"
+
+remove "$archive_folder"
+
+nginx_reload
+
+change_owner() {
+  sudo chown "$USER:$USER" -R "$1"
+}
+
+change_owner "$nginx_dir"
+
+change_owner "$certbot_dir"

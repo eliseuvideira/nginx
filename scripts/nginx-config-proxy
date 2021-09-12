@@ -1,0 +1,82 @@
+#!/usr/bin/env bash
+
+script_name="$(basename "$0")"
+script_dir="$(realpath "$(dirname "$0")")"
+
+usage() {
+  echo "$script_name: usage: $script_name DOMAIN" >&2
+}
+
+exit_with_error() {
+  echo "$script_name: error: $1" >&2
+  usage
+  exit 1
+}
+
+if [ "$#" != "2" ]; then
+  exit_with_error "invalid number of arguments $#"
+fi
+
+domain="$1"
+proxy="$2"
+
+if ! "$script_dir/validate-domain" "$domain"; then
+  exit_with_error "not a valid domain '$domain'"
+fi
+
+if ! "$script_dir/validate-http-url" "$proxy"; then
+  exit_with_error "not a valid proxy '$proxy'"
+fi
+
+cat <<EOF
+server {
+  listen 80;
+  listen [::]:80;
+
+  server_name $domain;
+
+  location /.well-known/acme-challenge/ {
+    root /var/www/certbot;
+  }
+
+  return 301 https://\$host\$request_uri;
+}
+
+server {
+  listen 443 ssl http2;
+  listen [::]:443 ssl http2;
+
+  server_name $domain;
+
+  ssl_certificate /etc/letsencrypt/live/$domain/fullchain.pem;
+  ssl_certificate_key /etc/letsencrypt/live/$domain/privkey.pem;
+
+  client_max_body_size 0;
+  client_body_buffer_size 128k;
+
+  chunked_transfer_encoding on;
+
+  location /.well-known/acme-challenge/ {
+    root /var/www/certbot;
+  }
+
+  location / {
+    proxy_pass          $proxy;
+    proxy_http_version  1.1;
+    proxy_cache_bypass  \$http_upgrade;
+
+    proxy_set_header Upgrade           \$http_upgrade;
+    proxy_set_header Connection        "upgrade";
+    proxy_set_header Host              \$host;
+    proxy_set_header X-Real-IP         \$remote_addr;
+    proxy_set_header X-Forwarded-For   \$proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto \$scheme;
+    proxy_set_header X-Forwarded-Host  \$host;
+    proxy_set_header X-Forwarded-Port  \$server_port;    
+  }
+
+  include /etc/nginx/extra-conf.d/*.conf;
+  include /etc/letsencrypt/options-ssl-nginx.conf;
+  ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+}
+EOF
