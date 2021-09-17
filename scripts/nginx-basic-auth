@@ -23,4 +23,4 @@ password="$2"
 root_dir="$(realpath "$script_dir/..")"
 htpasswd_file="$root_dir/nginx/htpasswd"
 
-echo "$username:$(echo "$password" | openssl passwd -stdin)" >>"$htpasswd_file"
+docker run --rm --entrypoint htpasswd httpd:2 -Bbn "$username" "$password" | sed '/^$/d' >>"$htpasswd_file"
