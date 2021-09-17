@@ -14,6 +14,12 @@
 ./scripts/cert-remove subdomain.domain.com
 ```
 
+- ### nginx-basic-auth
+
+```sh
+./scripts/nginx-basic-auth <username> <password>
+```
+
 - ### nginx-reload
 
 ```sh

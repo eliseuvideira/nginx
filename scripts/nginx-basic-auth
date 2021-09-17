@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+
+script_name="$(basename "$0")"
+script_dir="$(realpath "$(dirname "$0")")"
+
+usage() {
+  echo "$script_name: usage: $script_name USERNAME PASSWORD" >&2
+}
+
+exit_with_error() {
+  echo "$script_name: error: $1" >&2
+  usage
+  exit 1
+}
+
+if [ "$#" != "2" ]; then
+  exit_with_error "invalid number of arguments $#"
+fi
+
+username="$1"
+password="$2"
+
+root_dir="$(realpath "$script_dir/..")"
+htpasswd_file="$root_dir/nginx/htpasswd"
+
+docker run --entrypoint htpasswd httpd:2 -Bbn "$username" "$password" | sed '/^$/d' >>"$htpasswd_file"
