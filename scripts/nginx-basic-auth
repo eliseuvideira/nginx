@@ -23,4 +23,4 @@ password="$2"
 root_dir="$(realpath "$script_dir/..")"
 htpasswd_file="$root_dir/nginx/htpasswd"
 
-echo "$username:$(openssl passwd -6 "$password")" >>"$htpasswd_file"
+echo "$username:$(echo "$password" | openssl passwd -stdin)" >>"$htpasswd_file"
