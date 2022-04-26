@@ -1,5 +1,6 @@
 certbot/conf/*
 certbot/www/*
+nginx/extras/*
 nginx/domains/*
 nginx/htpasswd
 public/*
@@ -7,5 +8,6 @@ public/*
 !certbot/conf/options-ssl-nginx.conf
 !certbot/conf/ssl-dhparams.pem
 !certbot/www/.gitkeep
+!nginx/extras/.gitkeep
 !nginx/domains/.gitkeep
 !public/.gitkeep
