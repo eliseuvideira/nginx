@@ -3,27 +3,27 @@
 set -e
 set -u
 
-script_name="$(basename "$0")"
-script_dir="$(realpath "$(dirname "$0")")"
+script_name="$(basename "${0}")"
+script_dir="$(realpath "$(dirname "${0}")")"
 
 usage() {
-  echo "$script_name: usage: $script_name DOMAIN" >&2
+  echo "${script_name}: usage: ${script_name} DOMAIN" >&2
 }
 
 exit_with_error() {
-  echo "$script_name: error: $1" >&2
+  echo "${script_name}: error: ${1}" >&2
   usage
   exit 1
 }
 
-if [ "$#" != "1" ]; then
-  exit_with_error "invalid number of arguments $#"
+if [ "${#}" != "1" ]; then
+  exit_with_error "invalid number of arguments ${#}"
 fi
 
-validate_regex="$script_dir/validate-regex"
+validate_regex="${script_dir}/validate-regex"
 regex_domain="^([a-z0-9-]{1,63}\.)+[a-z]{2,63}$"
-domain="$1"
+domain="${1}"
 
-if ! "$validate_regex" "$regex_domain" "$domain"; then
-  exit_with_error "not a valid domain '$domain'"
+if ! "${validate_regex}" "${regex_domain}" "${domain}"; then
+  exit_with_error "not a valid domain '${domain}'"
 fi

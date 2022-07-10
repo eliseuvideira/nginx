@@ -3,30 +3,30 @@
 set -e
 set -u
 
-script_name="$(basename "$0")"
-script_dir="$(realpath "$(dirname "$0")")"
+script_name="$(basename "${0}")"
+script_dir="$(realpath "$(dirname "${0}")")"
 
 usage() {
-  echo "$script_name: usage: $script_name" >&2
+  echo "${script_name}: usage: ${script_name}" >&2
 }
 
 exit_with_error() {
-  echo "$script_name: error: $1" >&2
+  echo "${script_name}: error: ${1}" >&2
   usage
   exit 1
 }
 
-if [ "$#" != "0" ]; then
-  exit_with_error "invalid number of arguments $#"
+if [ "${#}" != "0" ]; then
+  exit_with_error "invalid number of arguments ${#}"
 fi
 
-if ! "$script_dir/nginx-test"; then
+if ! "${script_dir}/nginx-test"; then
   exit_with_error "failed to test nginx config"
 fi
 
-docker_compose_dir="$(realpath "$script_dir/..")"
-docker_compose_filepath="$docker_compose_dir/docker-compose.yml"
+docker_compose_dir="$(realpath "${script_dir}/..")"
+docker_compose_filepath="${docker_compose_dir}/docker-compose.yml"
 
-if ! docker-compose -f "$docker_compose_filepath" exec nginx nginx -s reload; then
+if ! docker-compose -f "${docker_compose_filepath}" exec nginx nginx -s reload; then
   exit_with_error "failed to reload nginx"
 fi

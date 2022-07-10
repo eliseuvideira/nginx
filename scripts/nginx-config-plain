@@ -3,27 +3,27 @@
 set -e
 set -u
 
-script_name="$(basename "$0")"
-script_dir="$(realpath "$(dirname "$0")")"
+script_name="$(basename "${0}")"
+script_dir="$(realpath "$(dirname "${0}")")"
 
 usage() {
-  echo "$script_name: usage: $script_name DOMAIN" >&2
+  echo "${script_name}: usage: ${script_name} DOMAIN" >&2
 }
 
 exit_with_error() {
-  echo "$script_name: error: $1" >&2
+  echo "${script_name}: error: ${1}" >&2
   usage
   exit 1
 }
 
-if [ "$#" != "1" ]; then
-  exit_with_error "invalid number of arguments $#"
+if [ "${#}" != "1" ]; then
+  exit_with_error "invalid number of arguments ${#}"
 fi
 
-domain="$1"
+domain="${1}"
 
-if ! "$script_dir/validate-domain" "$domain"; then
-  exit_with_error "not a valid domain '$domain'"
+if ! "${script_dir}/validate-domain" "${domain}"; then
+  exit_with_error "not a valid domain '${domain}'"
 fi
 
 cat <<EOF
@@ -31,7 +31,7 @@ server {
   listen 80;
   listen [::]:80;
 
-  server_name $domain;
+  server_name ${domain};
 
   location /.well-known/acme-challenge/ {
     root /var/www/certbot;
