@@ -5,9 +5,10 @@ set -u
 
 script_name="$(basename "${0}")"
 script_dir="$(realpath "$(dirname "${0}")")"
+script_usage="${script_name} DOMAIN"
 
 usage() {
-  echo "${script_name}: usage: ${script_name} DOMAIN" >&2
+  echo "${script_name}: usage: ${script_usage}" >&2
 }
 
 exit_with_error() {
@@ -16,8 +17,11 @@ exit_with_error() {
   exit 1
 }
 
-if [ "${#}" != "1" ]; then
-  exit_with_error "invalid number of arguments ${#}"
+recieved_arguments="${#}"
+expected_arguments="1"
+
+if [ "${recieved_arguments}" != "${expected_arguments}" ]; then
+  exit_with_error "invalid number of arguments, expected \"${expected_arguments}\", recieved \"${recieved_arguments}\""
 fi
 
 validate_regex="${script_dir}/validate-regex"
